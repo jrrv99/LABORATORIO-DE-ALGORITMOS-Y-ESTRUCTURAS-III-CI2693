@@ -82,8 +82,10 @@ fun getComponentesConexas(g: Grafo): List<List<Int>> {
                 }
             } else {
                 // Para grafos dirigidos, necesitamos verificar caminos en ambas direcciones (CFC)
+                component.add(i+1)
+                visited[i] = true
                 for (j in 0 until n) {
-                    if (R.get(i, j) == 1.0 && R.get(j, i) == 1.0) {
+                    if (R.get(i, j) == 1.0 && R.get(j, i) == 1.0 && i!=j) {
                         component.add(j + 1) // Los vértices se guardan de 1 a n, no de 0 a n-1
                         visited[j] = true
                     }
