@@ -27,35 +27,73 @@ fun getGrafo(rutaArchivo: String): Grafo? { // para leer el grafo de un archivo.
 
 fun getMatrizDeAdyacencia(g: Grafo): Matrix {
     var n = g.obtenerNumeroDeVertices()
-    var A = Matrix(n,n) // el constructor por defecto inicializa en ceros
-    /*
-    SU CODIGO
-    */
+    var A = Matrix(n, n) // El constructor por defecto inicializa en ceros
+    
+    for (i in 1..n) {
+        for (adyacente in g.adyacentes(i)) {
+            A.set(i - 1, adyacente.elOtroVertice(i) - 1, 1.0)
+        }
+    }
+    
     return A
 }
 
 fun getMatrizDeAlcance(A: Matrix): Matrix {
     val R = A.copy()
     val n = R.rowDimension
-    /*
-    SU CODIGO
-    */
+    
+    for (k in 0 until n) {
+        for (i in 0 until n) {
+            for (j in 0 until n) {
+                if (R.get(i, j) == 0.0 && R.get(i, k) == 1.0 && R.get(k, j) == 1.0) {
+                    R.set(i, j, 1.0)
+                }
+            }
+        }
+    }
+    
     return R
 }
 
-fun getComponentesConexas(g: Grafo): List<List<Int>> { //Construir una lista de lista de los rótulos (Int) de los nodos con las componentes conexas
+fun getComponentesConexas(g: Grafo): List<List<Int>> {
     val n = g.obtenerNumeroDeVertices()
     val A = getMatrizDeAdyacencia(g) // construir la matriz de adyacencia (A)
     val R = getMatrizDeAlcance(A) // construir la matriz de alcance (R)
-    print("\nMatriz de adyacencia (A) $n x $n"); A.print(0,0); print("\nMatriz de alcance (R) $n x $n"); R.print(0,0) // feedback
-    // Utilizar la matriz C (copia de R) para extraer las componentes conexas
-    val C = R.copy()
+    print("\nMatriz de adyacencia (A) $n x $n");
+    A.print(0, 0);
+    print("\nMatriz de alcance (R) $n x $n");
+    R.print(0, 0) // feedback
+    
     val esNoDirigido = g is GrafoNoDirigido || g is GrafoNoDirigidoCosto
     val visited = BooleanArray(n) // El constructor por defecto inicializa en False
     val components = mutableListOf<List<Int>>()
-    /*
-    SU CODIGO
-    */
+
+    for (i in 0 until n) {
+        if (!visited[i]) {
+            val component = mutableListOf<Int>()
+
+            if (esNoDirigido) {
+                // Para grafos no dirigidos, solo agregamos los vértices conectados a i
+                for (j in 0 until n) {
+                    if (R.get(i, j) == 1.0) {
+                        component.add(j + 1) // Los vértices se guardan de 1 a n, no de 0 a n-1
+                        visited[j] = true
+                    }
+                }
+            } else {
+                // Para grafos dirigidos, necesitamos verificar caminos en ambas direcciones (CFC)
+                for (j in 0 until n) {
+                    if (R.get(i, j) == 1.0 && R.get(j, i) == 1.0) {
+                        component.add(j + 1) // Los vértices se guardan de 1 a n, no de 0 a n-1
+                        visited[j] = true
+                    }
+                }
+            }
+
+            components.add(component)
+        }
+    }
+
     return components
 }
 
