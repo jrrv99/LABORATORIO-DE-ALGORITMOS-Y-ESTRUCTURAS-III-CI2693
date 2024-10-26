@@ -94,9 +94,27 @@ fun getComponentesConexas(g: Grafo): List<List<Int>> { //Construir una lista de 
 
 fun BFS(g: Grafo, s: Int): List<Int> { // presente el recorrido BFS del grago g desde el nodo s
     val visitado = mutableListOf<Int>()
-    /*
-    SU CÓDIGO
-    */
+    val queue = ArrayDeque<Int>()
+    val visitedNodes =
+        mutableMapOf<Int, Boolean>() // Mas eficiente key:value que usar el index como key en un array BooleanArray
+
+    queue.add(s) // Nodo inicial
+    visitedNodes[s] = true // Marcamos el nodo inicial como visitado
+
+    while (queue.isNotEmpty()) {
+        val currentNode = queue.removeFirst()
+        visitado.add(currentNode)
+
+        val neighbors = getVecinos(g, currentNode) // Obtener vecinos del nodo actual
+
+        for (neighbor in neighbors) {
+            if (visitedNodes[neighbor] == true) continue // Si ya fue visitado, saltar
+
+            queue.add(neighbor)
+            visitedNodes[neighbor] = true // Marcar el vecino como visitado
+        }
+    }
+
     return visitado
 }
 
