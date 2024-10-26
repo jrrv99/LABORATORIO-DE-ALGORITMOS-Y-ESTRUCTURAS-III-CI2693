@@ -24,3 +24,9 @@ hs_err_pid*
 replay_pid*
 
 desktop.ini
+
+# Default ignored files
+/shelf/
+/workspace.xml
+
+.idea
