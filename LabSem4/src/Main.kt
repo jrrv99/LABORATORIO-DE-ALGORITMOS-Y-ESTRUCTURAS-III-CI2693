@@ -62,7 +62,7 @@ fun getComponentesConexas(g: Grafo): List<List<Int>> {
     print("\nMatriz de adyacencia (A) $n x $n");
     A.print(0, 0);
     print("\nMatriz de alcance (R) $n x $n");
-    R.print(0, 0) // feedback
+    R.print(0, 0); // feedback
     
     val esNoDirigido = g is GrafoNoDirigido || g is GrafoNoDirigidoCosto
     val visited = BooleanArray(n) // El constructor por defecto inicializa en False
@@ -82,14 +82,17 @@ fun getComponentesConexas(g: Grafo): List<List<Int>> {
                 }
             } else {
                 // Para grafos dirigidos, necesitamos verificar caminos en ambas direcciones (CFC)
-                component.add(i+1)
-                visited[i] = true
                 for (j in 0 until n) {
-                    if (R.get(i, j) == 1.0 && R.get(j, i) == 1.0 && i!=j) {
+                    if (R.get(i, j) == 1.0 && R.get(j, i) == 1.0) {
                         component.add(j + 1) // Los vértices se guardan de 1 a n, no de 0 a n-1
                         visited[j] = true
                     }
                 }
+            }
+
+            // Si la componente está vacía, significa que el nodo es aislado
+            if (component.isEmpty()) {
+                component.add(i + 1) // Agregar el nodo aislado
             }
 
             components.add(component)
@@ -105,4 +108,4 @@ fun main(args: Array<String>) {
             print("Componentes conexas: ${getComponentesConexas(grafo)}\n\n${"*".repeat(120)}\n")
         }?: print("No se pudo crear la instancia del grafo para el archivo ${file.name}.")
     }
- }
+}
