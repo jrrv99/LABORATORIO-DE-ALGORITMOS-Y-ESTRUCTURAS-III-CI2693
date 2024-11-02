@@ -130,11 +130,27 @@ fun BFS(g: Grafo, inicio: Int): List<Int> { // presenta el recorrido BFS del gra
     return visitado
 }
 
-fun DFS(g: Grafo, inicio: Int): List<Int>  { // presenta el recorrido DFS del grafo g desde el nodo inicio
+fun DFS(g: Grafo, inicio: Int): List<Int> { // presenta el recorrido DFS del grafo g desde el nodo inicio
     val visitado = mutableListOf<Int>()
-    /*
-    SU CODIGO
-    */
+    val stack = Stack<Int>()
+
+    stack.push(inicio) //Apilar el nodo inicio
+
+    while (stack.isNotEmpty()) { // Mientras la pila no esté vacía:
+        val currentNode = stack.pop() // Nodo actual = desapilar
+
+        if (currentNode !in visitado) { // Si el nodo actual no ha sido visitado:
+            visitado.add(currentNode) // Marcar nodo actual como visitado
+
+            // Obtener vecinos y añadirlos a la pila en orden inverso para que el primero en la lista sea explorado último
+            val neighbors = getVecinos(g, currentNode)
+            for (neighbor in neighbors) { // Para cada nodo w adyacente a nodo actual:
+                if (neighbor !in visitado) { // Si w no ha sido visitado:
+                    stack.push(neighbor) // Apilar w
+                }
+            }
+        }
+    }
     return visitado
 }
 
