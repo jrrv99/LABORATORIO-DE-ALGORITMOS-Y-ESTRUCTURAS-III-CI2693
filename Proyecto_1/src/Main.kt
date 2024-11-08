@@ -118,7 +118,7 @@ class ILoveCatsNetwork(
             candidatesWithClosseness.add(Candidate(candidate, this.getProximityLevel(user_id, candidate)))
         }
 
-        return candidatesWithClosseness
+        return candidatesWithClosseness.sortedBy { it.proximity }.toMutableList()
     }
 
     fun getUsersWithMoreFriends(): List<User> {
@@ -189,16 +189,17 @@ class ILoveCatsNetwork(
         val visitado = mutableListOf<Int>()
         val cola = ArrayDeque<Pair<Int, Int>>() // (user, level)
 
-        cola.add(Pair(user, 1))
+        cola.add(Pair(user, 0))
         visitado.add(user)
 
         while (cola.isNotEmpty()) {
             val (currentUser, level) = cola.removeFirst()
-            if (currentUser == candidato) return level
-
+            
             // Usar una lista vacía si no hay amigos para el usuario actual
-            val friends = this.users[currentUser]?.friends ?: mutableListOf()
+            val friends = getVecinos(this.friendsGraph, currentUser)
+            println(friends)
             friends.forEach { friend ->
+                if (friend == candidato) return level
                 if (friend !in visitado) {
                     visitado.add(friend)
                     cola.add(Pair(friend, level + 1))
@@ -215,7 +216,7 @@ class ILoveCatsNetwork(
 
         for ((id, user) in this.users) {
             println("\t\tUSUARIO $id")
-
+            
             for ((index, candidate) in user.candidates.withIndex()) {
                 val prox = if (candidate.proximity == Int.MAX_VALUE) "∞" else candidate.proximity.toString()
                 println("\t\t\t${index + 1}:${candidate.id}:${prox}")
