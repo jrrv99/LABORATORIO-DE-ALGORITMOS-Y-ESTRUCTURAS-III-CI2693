@@ -214,7 +214,8 @@ class ILoveCatsNetwork(
             println("\t\tUSUARIO $id")
 
             for ((index, candidate) in user.candidates.withIndex()) {
-                println("\t\t\t${index + 1}:${candidate.id}:${if (candidate.proximity == Int.MAX_VALUE) "∞" else candidate.proximity.toString()}")
+                val prox = if (candidate.proximity == Int.MAX_VALUE) "∞" else candidate.proximity
+                println("\t\t\t${index + 1}:${candidate.id}:${prox}")
             }
         }
     }
