@@ -139,7 +139,16 @@ class ILoveCatsNetwork(
     fun getCommunities(): List<List<Int>> {
         val communities = getComponentesConexas(this.friendsGraph)
 
-        return communities.sortedByDescending { it.size }
+        // Ordenar cada comunidad individualmente de mayor a menor por la cantidad de amigos, y luego por ID en caso de empate
+        val sortedCommunities = communities.map { community ->
+            community.sortedWith(
+                compareByDescending<Int> { this.users[it]?.friends?.size ?: 0 } // Ordenar de mayor a menor por cantidad de amigos
+                    .thenBy { it } // En caso de empate, ordenar de menor a mayor por ID
+            )
+        }
+
+        // Devolver las comunidades ordenadas por tamaño, de mayor a menor
+        return sortedCommunities.sortedByDescending { it.size }
     }
 
     fun printCommunities() {
