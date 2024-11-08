@@ -69,13 +69,18 @@ fun getComponentesConexas(g: Grafo): List<List<Int>> { //Construir una lista de 
     return componentes
 }
 
+data class Candidate(
+    val id: Int,
+    val proximity: Int
+)
+
 /**
  * Definitions
  */
 data class User(
     val id: Int,
     val friends: MutableList<Int> = mutableListOf(),
-    val candidates: MutableList<Int> = mutableListOf() // TODO: Add ClosenessLevel
+    val candidates: MutableList<Candidate> = mutableListOf() // TODO: Add ProximityLevel
 )
 
 class ILoveCatsNetwork(
@@ -90,10 +95,10 @@ class ILoveCatsNetwork(
         friendsGraph = GrafoNoDirigido(friendsFilePath)
         candidatesGraph = GrafoNoDirigido(candidatesFilePath)
 
-        // Inicializar usuarios con amigos y candidatos // TODO: agregar el ClosenessLevel para cada candidato
+        // Inicializar usuarios con amigos y candidatos // TODO: agregar el ProximityLevel para cada candidato
         for (user_id in 1..friendsGraph.obtenerNumeroDeVertices()) {
             val friends = getFriends(user_id).toMutableList()
-            val candidates = getCandidates(user_id).toMutableList()
+            val candidates = getCandidates(user_id)
             this.users[user_id] = User(user_id, friends, candidates)
         }
     }
@@ -103,9 +108,16 @@ class ILoveCatsNetwork(
         return getVecinos(this.friendsGraph, user_id)
     }
 
-    fun getCandidates(user_id: Int): List<Int> {
+    fun getCandidates(user_id: Int): MutableList<Candidate> {
         // Obtener la lista de candidatos de un usuario, ordenados por el id del candidato
-        return getVecinos(this.candidatesGraph, user_id)
+        val candidates = getVecinos(this.candidatesGraph, user_id)
+        val candidatesWithClosseness = mutableListOf<Candidate>()
+
+        for (candidate in candidates) {
+            candidatesWithClosseness.add(Candidate(candidate, this.getProximityLevel(user_id, candidate)))
+        }
+
+        return candidatesWithClosseness
     }
 
     fun getUsersWithMoreFriends(): List<User> {
@@ -167,6 +179,46 @@ class ILoveCatsNetwork(
 
     }
 
+    fun getProximityLevel(user: Int, candidato: Int): Int {
+        if (user == candidato) return Int.MAX_VALUE
+
+        val visitado = mutableListOf<Int>()
+        val cola = ArrayDeque<Pair<Int, Int>>() // (user, level)
+
+        cola.add(Pair(user, 1))
+        visitado.add(user)
+
+        while (cola.isNotEmpty()) {
+            val (currentUser, level) = cola.removeFirst()
+
+            if (currentUser == candidato) return level
+
+            // Usar una lista vacía si no hay amigos para el usuario actual
+            val friends = this.users[currentUser]?.friends ?: mutableListOf()
+
+            friends.forEach { friend ->
+                if (friend !in visitado) {
+                    visitado.add(friend)
+                    cola.add(Pair(friend, level + 1))
+                }
+            }
+        }
+
+        return Int.MAX_VALUE
+    }
+
+    fun printClossenessByUser() {
+        println("\tLISTA DE <<CANDIDATOS A AMIGOS>> POR USUARIO")
+
+        for ((id, user) in this.users) {
+            println("\t\tUSUARIO $id")
+
+            for ((index, candidate) in user.candidates.withIndex()) {
+                println("\t\t\t${index + 1}:${candidate.id}:${if (candidate.proximity == Int.MAX_VALUE) "∞" else candidate.proximity.toString()}")
+            }
+        }
+    }
+
     fun report() {
         println("INFORME I♥CATS")
         
@@ -177,6 +229,8 @@ class ILoveCatsNetwork(
         this.printWinners(usersWithLessFriends, "MENOS")
 
         this.printCommunities()
+
+        this.printClossenessByUser()
     }
 }
 
