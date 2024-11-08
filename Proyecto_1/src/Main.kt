@@ -80,7 +80,7 @@ data class Candidate(
 data class User(
     val id: Int,
     val friends: MutableList<Int> = mutableListOf(),
-    val candidates: MutableList<Candidate> = mutableListOf() // TODO: Add ProximityLevel
+    val candidates: MutableList<Candidate> = mutableListOf()
 )
 
 class ILoveCatsNetwork(
@@ -92,6 +92,7 @@ class ILoveCatsNetwork(
     var candidatesGraph: GrafoNoDirigido
 
     init {
+        // Inicializa los grafos y llena los usuarios con amigos y candidatos
         friendsGraph = GrafoNoDirigido(friendsFilePath)
         candidatesGraph = GrafoNoDirigido(candidatesFilePath)
 
@@ -104,12 +105,12 @@ class ILoveCatsNetwork(
     }
 
     fun getFriends(user_id: Int): List<Int> {
-        // Obtener la lista de amigos de un usuario, ordenados por el id del amigo
+        // Devuelve la lista de amigos de un usuario
         return getVecinos(this.friendsGraph, user_id)
     }
 
     fun getCandidates(user_id: Int): MutableList<Candidate> {
-        // Obtener la lista de candidatos de un usuario, ordenados por el id del candidato
+        // Obtiene la lista de candidatos a amigos de un usuario con su grado de cercanía
         val candidates = getVecinos(this.candidatesGraph, user_id)
         val candidatesWithClosseness = mutableListOf<Candidate>()
 
@@ -141,6 +142,7 @@ class ILoveCatsNetwork(
     }
 
     fun printWinners(winners: List<User>, category: String) {
+        // Imprime los usuarios con más o menos amigos, según la categoría dada
         println("\tUSUARIOS CON $category AMIGOS=${winners.size}")
         
         for ((index, user) in winners.withIndex()) {
@@ -149,6 +151,7 @@ class ILoveCatsNetwork(
     }
 
     fun getCommunities(): List<List<Int>> {
+        // Obtiene las comunidades de amigos ordenadas de mayor a menor por tamaño
         val communities = getComponentesConexas(this.friendsGraph)
 
         // Ordenar cada comunidad individualmente de mayor a menor por la cantidad de amigos, y luego por ID en caso de empate
@@ -164,6 +167,7 @@ class ILoveCatsNetwork(
     }
 
     fun printCommunities() {
+        // Imprime todas las comunidades de amigos con sus usuarios ordenados
         val communities = this.getCommunities()
         println("\tCOMUNIDADES DE AMIGOS=${communities.size}")
 
@@ -176,11 +180,11 @@ class ILoveCatsNetwork(
                 println("\t\t\t${u_index + 1}:${user.id}:${user.friends.size}:${user.friends}")
             }
         }
-
     }
 
     fun getProximityLevel(user: Int, candidato: Int): Int {
-        if (user == candidato) return Int.MAX_VALUE
+        // Calcula el grado de cercanía entre un usuario y un candidato a amigo
+        if (user == candidato) return 0
 
         val visitado = mutableListOf<Int>()
         val cola = ArrayDeque<Pair<Int, Int>>() // (user, level)
@@ -190,12 +194,10 @@ class ILoveCatsNetwork(
 
         while (cola.isNotEmpty()) {
             val (currentUser, level) = cola.removeFirst()
-
             if (currentUser == candidato) return level
 
             // Usar una lista vacía si no hay amigos para el usuario actual
             val friends = this.users[currentUser]?.friends ?: mutableListOf()
-
             friends.forEach { friend ->
                 if (friend !in visitado) {
                     visitado.add(friend)
@@ -207,31 +209,27 @@ class ILoveCatsNetwork(
         return Int.MAX_VALUE
     }
 
-    fun printClossenessByUser() {
+    fun printProximitiesByUser() {
+        // Imprime la lista de candidatos a amigos por usuario, ordenados por grado de cercanía
         println("\tLISTA DE <<CANDIDATOS A AMIGOS>> POR USUARIO")
 
         for ((id, user) in this.users) {
             println("\t\tUSUARIO $id")
 
             for ((index, candidate) in user.candidates.withIndex()) {
-                val prox = if (candidate.proximity == Int.MAX_VALUE) "∞" else candidate.proximity
+                val prox = if (candidate.proximity == Int.MAX_VALUE) "∞" else candidate.proximity.toString()
                 println("\t\t\t${index + 1}:${candidate.id}:${prox}")
             }
         }
     }
 
     fun report() {
+        // Genera el informe de I CATS
         println("INFORME I♥CATS")
-        
-        val usersWithMoreFriends = getUsersWithMoreFriends()
-        val usersWithLessFriends = getUsersWithLessFriends()
-
-        this.printWinners(usersWithMoreFriends, "MAS")
-        this.printWinners(usersWithLessFriends, "MENOS")
-
+        this.printWinners(getUsersWithMoreFriends(), "MAS")
+        this.printWinners(getUsersWithLessFriends(), "MENOS")
         this.printCommunities()
-
-        this.printClossenessByUser()
+        this.printProximitiesByUser()
     }
 }
 
@@ -264,7 +262,10 @@ fun main(args: Array<String>) {
      * Crear e inicializar la red
      */
     val network = ILoveCatsNetwork(amigosTxt, candidatosTxt)
-    network.report();
-
-    
+    network.report();    
 }
+
+
+/**
+ * ! 
+ */
