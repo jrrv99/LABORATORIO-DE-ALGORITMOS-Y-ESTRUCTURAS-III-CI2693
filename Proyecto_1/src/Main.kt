@@ -268,5 +268,17 @@ fun main(args: Array<String>) {
 
 
 /**
- * ! 
+ * TODO: PESEUDOCODIGO 
+ * - Usuarios con más amigos (Cantidad de ganadores)
+ *  - Bucle  `<INDEX>:<ID_USUARIO>:<CANTIDAD DE AMIGOS>:<LISTA DE AMIGOS>` (Order by id)
+ * - Usuarios con menos amigos (Cantidad de ganadores)
+ * 	- `<INDEX>:<ID_USUARIO>:<CANTIDAD DE AMIGOS>:<LISTA DE AMIGOS>` (Order by id)
+ * - Comunidades de amigos (Componentes conexas) (array lenght) (mayor a menor)
+ * 	- `print("COMUNIDADES DE AMIGOS={communities.lenght}")`
+ * 	- Bucle `for comunity in comunities: print("{COMUNIDAD} {comunity.index})
+ * 		- Bucle `for user in comunity: print(user.index:<user.id>:<user.friends.lenght>:<user.friends>)`
+ * - Lista de candidatos a amigos por usuarios (Vecinos en el graph de candidates y proximidad con BFS modificado con origen y target)
+ * 	- `print("LISTA DE <<CANDIDATOS A AMIGOS>> POR USUARIO")`
+ * 	- Bucle `for user in network.users: print("USUARIO {user.index}")
+ * 		- Bucle: `for candidate in user.candidates: print("{candidate.index}:{user.id}:{calculateClosenessLevel(network.fiendsGraph, user.id, candidate.id)})`
  */
