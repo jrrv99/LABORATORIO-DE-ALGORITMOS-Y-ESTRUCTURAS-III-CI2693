@@ -101,7 +101,7 @@ fun MSTPrimByCC(grafo: GrafoNoDirigidoCosto, componente: List<Int>): List<Arista
     val priorityQueue = PriorityQueue<AristaCosto>() // Cola de prioridad para las aristas de menor a mayor costo
 
     // Elegir un nodo inicial arbitrario de la componente
-    val startNode = componente.first()
+    val startNode = componente.random()
     visited.add(startNode)
 
     // Agregar las aristas del nodo inicial a la cola de prioridad
@@ -151,7 +151,7 @@ fun getMSTbyPrim(g: GrafoNoDirigidoCosto): List<Pair<List<Int>, List<Triple<Int,
 
 fun main(args: Array<String>) {
     val archivoGrafo = seleccionaArchivoTxt("Seleccionar archivo de grafo") ?: exitProcess(1)
-    val grafo = GrafoNoDirigidoCosto(archivoGrafo) ?: exitProcess(1)
+    val grafo = GrafoNoDirigidoCosto(archivoGrafo)
     println("$archivoGrafo $grafo")
     val mstComponents = getMSTbyPrim(grafo)
 
